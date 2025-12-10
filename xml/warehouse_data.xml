@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="warehouse_style.xsl"?>
+<tns:WarehouseSystem xmlns:tns="http://www.example.org/warehouse"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 1\Lab\xml\warehouse_schema.xsd">
+
+
+    <tns:Users>
+        <tns:User userId="u001">
+            <tns:Login>ivan_p</tns:Login>
+            <tns:Password>secret123</tns:Password>
+            <tns:FirstName>Ivan</tns:FirstName>
+            <tns:LastName>Petrenko</tns:LastName>
+            <!-- Choice: Phone used here -->
+            <tns:ContactInfo>
+                <tns:Phone>+380671234567</tns:Phone>
+            </tns:ContactInfo>
+        </tns:User>
+        <tns:User userId="u002">
+            <tns:Login>maria_k</tns:Login>
+            <tns:Password>qwerty456</tns:Password>
+            <tns:FirstName>Maria</tns:FirstName>
+            <tns:LastName>Kovalenko</tns:LastName>
+            <!-- Choice: Email used here -->
+            <tns:ContactInfo>
+                <tns:Email>maria.kov@example.com</tns:Email>
+            </tns:ContactInfo>
+        </tns:User>
+    </tns:Users>
+
+    <tns:Racks>
+        <!-- Rack with optional section attribute -->
+        <tns:Rack rackId="r101" sectionCode="A">
+            <tns:Number>101</tns:Number>
+            <tns:Type>STANDARD</tns:Type>
+            <tns:Status>OCCUPIED</tns:Status>
+            <tns:PricePerDay>50.00</tns:PricePerDay>
+            <!-- 'All' allows any order of inner elements -->
+            <tns:Dimensions>
+                <tns:Width>200</tns:Width>
+                <tns:Height>300</tns:Height>
+                <tns:Depth>100</tns:Depth>
+            </tns:Dimensions>
+            <tns:TenantId>u001</tns:TenantId>
+        </tns:Rack>
+
+        <tns:Rack rackId="r102" sectionCode="A">
+            <tns:Number>102</tns:Number>
+            <tns:Type>STANDARD</tns:Type>
+            <tns:Status>FREE</tns:Status>
+            <tns:PricePerDay>50.00</tns:PricePerDay>
+            <tns:Dimensions>
+                <tns:Depth>100</tns:Depth>
+                <tns:Width>200</tns:Width>
+                <tns:Height>300</tns:Height>
+            </tns:Dimensions>
+        </tns:Rack>
+
+        <!-- Rack without optional attribute -->
+        <tns:Rack rackId="r201">
+            <tns:Number>201</tns:Number>
+            <tns:Type>REFRIGERATED</tns:Type>
+            <tns:Status>FREE</tns:Status>
+            <tns:PricePerDay>120.50</tns:PricePerDay>
+            <tns:Dimensions>
+                <tns:Width>250</tns:Width>
+                <tns:Height>250</tns:Height>
+                <tns:Depth>150</tns:Depth>
+            </tns:Dimensions>
+        </tns:Rack>
+    </tns:Racks>
+
+    <tns:Orders>
+        <tns:Order orderId="ord001">
+            <tns:UserId>u001</tns:UserId>
+            <tns:StartDate>2023-10-01</tns:StartDate>
+            <tns:EndDate>2023-10-31</tns:EndDate>
+            <tns:RackCount>1</tns:RackCount>
+            <tns:DesiredType>STANDARD</tns:DesiredType>
+            <tns:AssignedRacks>
+                <tns:RackRef>r101</tns:RackRef>
+            </tns:AssignedRacks>
+            <tns:Status>ACTIVE</tns:Status>
+        </tns:Order>
+        
+        <tns:Order orderId="ord002">
+            <tns:UserId>u002</tns:UserId>
+            <tns:StartDate>2023-11-01</tns:StartDate>
+            <tns:EndDate>2023-11-05</tns:EndDate>
+            <tns:RackCount>2</tns:RackCount>
+            <tns:DesiredType>REFRIGERATED</tns:DesiredType>
+            <tns:Status>CREATED</tns:Status>
+        </tns:Order>
+    </tns:Orders>
+
+    <tns:Payments>
+        <tns:Payment paymentId="p999">
+            <tns:OrderRef>ord001</tns:OrderRef>
+            <tns:Amount>1500.00</tns:Amount>
+            <tns:Date>2023-10-01T10:30:00</tns:Date>
+        </tns:Payment>
+    </tns:Payments>
+
+</tns:WarehouseSystem>

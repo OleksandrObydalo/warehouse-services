@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.org/warehouse"
+           xmlns:tns="http://www.example.org/warehouse"
+           elementFormDefault="qualified">
+
+    <!-- 1. ROOT ELEMENT -->
+    <xs:element name="WarehouseSystem">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Users" type="tns:UsersListType"/>
+                <xs:element name="Racks" type="tns:RacksListType"/>
+                <xs:element name="Orders" type="tns:OrdersListType"/>
+                <xs:element name="Payments" type="tns:PaymentsListType"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- 2. USER TYPES -->
+    <xs:complexType name="UsersListType">
+        <xs:sequence>
+            <xs:element name="User" type="tns:UserType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="UserType">
+        <xs:sequence>
+            <!-- Pattern restriction -->
+            <xs:element name="Login">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:minLength value="4"/>
+                        <xs:maxLength value="20"/>
+                        <xs:pattern value="[a-zA-Z0-9_]+"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <!-- Password will be hidden in XSLT, but structure exists -->
+            <xs:element name="Password" type="xs:string"/>
+            <xs:element name="FirstName" type="xs:string"/>
+            <xs:element name="LastName" type="xs:string"/>
+            
+            <!-- DEMONSTRATION OF <xs:choice> -->
+            <xs:element name="ContactInfo">
+                <xs:complexType>
+                    <xs:choice>
+                        <xs:element name="Phone" type="tns:PhoneType"/>
+                        <xs:element name="Email" type="tns:EmailType"/>
+                    </xs:choice>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <!-- Mandatory Attribute -->
+        <xs:attribute name="userId" type="xs:ID" use="required"/>
+    </xs:complexType>
+
+    <xs:simpleType name="PhoneType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\+380\d{9}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="EmailType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[^@]+@[^\.]+\..+"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- 3. RACK TYPES -->
+    <xs:complexType name="RacksListType">
+        <xs:sequence>
+            <xs:element name="Rack" type="tns:RackType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="RackType">
+        <xs:sequence>
+            <xs:element name="Number" type="xs:positiveInteger"/>
+            <xs:element name="Type" type="tns:RackCategoryType"/>
+            <xs:element name="Status" type="tns:RackStatusType"/>
+            
+            <!-- Numeric restrictions -->
+            <xs:element name="PricePerDay">
+                <xs:simpleType>
+                    <xs:restriction base="xs:decimal">
+                        <xs:minExclusive value="0.00"/>
+                        <xs:maxInclusive value="1000.00"/>
+                        <xs:fractionDigits value="2"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!-- DEMONSTRATION OF <xs:all> -->
+            <xs:element name="Dimensions">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="Width" type="xs:int"/>
+                        <xs:element name="Height" type="xs:int"/>
+                        <xs:element name="Depth" type="xs:int"/>
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            
+            <xs:element name="TenantId" type="xs:IDREF" minOccurs="0"/>
+        </xs:sequence>
+        
+        <!-- Mandatory ID Attribute -->
+        <xs:attribute name="rackId" type="xs:ID" use="required"/>
+        <!-- Optional Attribute -->
+        <xs:attribute name="sectionCode" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <!-- DEMONSTRATION OF <xs:enumeration> -->
+    <xs:simpleType name="RackStatusType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="FREE"/>
+            <xs:enumeration value="OCCUPIED"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="RackCategoryType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="STANDARD"/>
+            <xs:enumeration value="REFRIGERATED"/>
+            <xs:enumeration value="SECURE"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- 4. ORDER TYPES -->
+    <xs:complexType name="OrdersListType">
+        <xs:sequence>
+            <xs:element name="Order" type="tns:OrderType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="OrderType">
+        <xs:sequence>
+            <xs:element name="UserId" type="xs:IDREF"/>
+            <xs:element name="StartDate" type="xs:date"/>
+            <xs:element name="EndDate" type="xs:date"/>
+            <xs:element name="RackCount">
+                <xs:simpleType>
+                    <xs:restriction base="xs:int">
+                        <xs:minInclusive value="1"/>
+                        <xs:maxInclusive value="50"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="DesiredType" type="tns:RackCategoryType"/>
+            
+            <xs:element name="AssignedRacks" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="RackRef" type="xs:IDREF" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+            <xs:element name="Status" type="tns:OrderStatusType"/>
+        </xs:sequence>
+        <xs:attribute name="orderId" type="xs:ID" use="required"/>
+    </xs:complexType>
+
+    <xs:simpleType name="OrderStatusType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CREATED"/>
+            <xs:enumeration value="CONFIRMED"/>
+            <xs:enumeration value="ACTIVE"/>
+            <xs:enumeration value="FINISHED"/>
+            <xs:enumeration value="CANCELLED"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- 5. PAYMENT TYPES -->
+    <xs:complexType name="PaymentsListType">
+        <xs:sequence>
+            <xs:element name="Payment" type="tns:PaymentType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PaymentType">
+        <xs:sequence>
+            <xs:element name="OrderRef" type="xs:IDREF"/>
+            <xs:element name="Amount">
+                <xs:simpleType>
+                    <xs:restriction base="xs:decimal">
+                        <xs:totalDigits value="10"/>
+                        <xs:fractionDigits value="2"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="Date" type="xs:dateTime"/>
+        </xs:sequence>
+        <xs:attribute name="paymentId" type="xs:ID" use="required"/>
+    </xs:complexType>
+
+</xs:schema>

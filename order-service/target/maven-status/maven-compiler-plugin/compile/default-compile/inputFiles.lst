@@ -1,0 +1,15 @@
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\dto\PlaceServiceDTO.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\OrderServiceApplication.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\service\OrderService.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\dto\PaymentServiceDTO.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\dto\DateRangeRequestDTO.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\dto\OrderDTO.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\controller\OrderController.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\dto\CreateOrderRequestDTO.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\model\Order.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\util\JsonSchemaValidator.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\config\RestTemplateConfig.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\repository\OrderRepository.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\client\PlaceServiceClient.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\client\PaymentServiceClient.java
+C:\Users\Alex\Desktop\Седьмой семестр\ІТРОІ\Лабораторна 2\Lab\order-service\src\main\java\org\example\orderservice\config\DataInitializer.java

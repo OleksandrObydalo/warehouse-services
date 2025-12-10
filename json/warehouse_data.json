@@ -1,0 +1,82 @@
+{
+  "users": [
+    {
+      "userId": "u001",
+      "login": "ivan_p",
+      "firstName": "Ivan",
+      "lastName": "Petrenko",
+      "contactInfo": {
+        "phone": "+380671234567"
+      }
+    },
+    {
+      "userId": "u002",
+      "login": "maria_k",
+      "firstName": "Maria",
+      "lastName": "Kovalenko",
+      "contactInfo": {
+        "email": "maria.kov@example.com"
+      }
+    }
+  ],
+  "racks": [
+    {
+      "rackId": "r101",
+      "sectionCode": "A",
+      "number": 101,
+      "type": "STANDARD",
+      "status": "OCCUPIED",
+      "pricePerDay": 50.00,
+      "dimensions": {
+        "width": 200,
+        "height": 300,
+        "depth": 100
+      },
+      "tenantId": "u001"
+    },
+    {
+      "rackId": "r102",
+      "number": 102,
+      "type": "REFRIGERATED",
+      "status": "FREE",
+      "pricePerDay": 120.50,
+      "dimensions": {
+        "width": 250,
+        "height": 250,
+        "depth": 150
+      },
+      "tenantId": null
+    }
+  ],
+  "orders": [
+    {
+      "orderId": "ord001",
+      "userId": "u001",
+      "startDate": "2023-10-01",
+      "endDate": "2023-10-31",
+      "rackCount": 1,
+      "desiredType": "STANDARD",
+      "status": "ACTIVE",
+      "assignedRacks": [
+        "r101"
+      ]
+    },
+    {
+      "orderId": "ord002",
+      "userId": "u002",
+      "startDate": "2023-11-01",
+      "endDate": "2023-11-05",
+      "rackCount": 2,
+      "desiredType": "REFRIGERATED",
+      "status": "CREATED"
+    }
+  ],
+  "payments": [
+    {
+      "paymentId": "p999",
+      "orderId": "ord001",
+      "amount": 1500.00,
+      "date": "2023-10-01T10:30:00Z"
+    }
+  ]
+}

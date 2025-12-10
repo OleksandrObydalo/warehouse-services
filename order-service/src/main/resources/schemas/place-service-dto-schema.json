@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/place-service-dto.schema.json",
+  "title": "Place Service DTO Schema",
+  "description": "Schema for Place DTO used in inter-service communication",
+  "type": "object",
+  "properties": {
+    "rackId": {
+      "type": "string"
+    },
+    "sectionCode": {
+      "type": ["string", "null"]
+    },
+    "number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "type": {
+      "type": "string",
+      "enum": ["STANDARD", "REFRIGERATED", "SECURE"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["FREE", "OCCUPIED"]
+    },
+    "pricePerDay": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "dimensions": {
+      "type": "object",
+      "properties": {
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1},
+        "depth": {"type": "integer", "minimum": 1}
+      },
+      "required": ["width", "height", "depth"]
+    },
+    "tenantId": {
+      "type": ["string", "null"]
+    }
+  },
+  "required": ["rackId", "number", "type", "status", "pricePerDay", "dimensions"]
+}
+

@@ -1,0 +1,17 @@
+org\example\orderservice\repository\OrderRepository.class
+org\example\orderservice\model\Order$RackType.class
+org\example\orderservice\client\PlaceServiceClient$GivePlacesRequest.class
+org\example\orderservice\model\Order.class
+org\example\orderservice\service\OrderService.class
+org\example\orderservice\dto\PlaceServiceDTO$DimensionsDTO.class
+org\example\orderservice\dto\CreateOrderRequestDTO.class
+org\example\orderservice\dto\OrderDTO.class
+org\example\orderservice\client\PlaceServiceClient.class
+org\example\orderservice\controller\OrderController.class
+org\example\orderservice\client\PlaceServiceClient$1.class
+org\example\orderservice\dto\PaymentServiceDTO.class
+org\example\orderservice\model\Order$OrderStatus.class
+org\example\orderservice\dto\PlaceServiceDTO.class
+org\example\orderservice\OrderServiceApplication.class
+org\example\orderservice\client\PaymentServiceClient.class
+org\example\orderservice\client\PaymentServiceClient$1.class

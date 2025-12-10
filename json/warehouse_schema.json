@@ -1,0 +1,260 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/warehouse.schema.json",
+  "title": "Warehouse Management System",
+  "description": "Схема для системи управління складом, що включає користувачів, стелажі, замовлення та оплати.",
+  "type": "object",
+  "required": [
+    "users",
+    "racks",
+    "orders",
+    "payments"
+  ],
+  "properties": {
+    "users": {
+      "type": "array",
+      "description": "Список зареєстрованих користувачів",
+      "items": {
+        "$ref": "#/definitions/user"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "racks": {
+      "type": "array",
+      "description": "Список складських стелажів",
+      "items": {
+        "$ref": "#/definitions/rack"
+      }
+    },
+    "orders": {
+      "type": "array",
+      "description": "Список замовлень на оренду",
+      "items": {
+        "$ref": "#/definitions/order"
+      }
+    },
+    "payments": {
+      "type": "array",
+      "description": "Список фінансових транзакцій",
+      "items": {
+        "$ref": "#/definitions/payment"
+      }
+    }
+  },
+  "definitions": {
+    "user": {
+      "type": "object",
+      "required": [
+        "userId",
+        "login",
+        "firstName",
+        "lastName",
+        "contactInfo"
+      ],
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Унікальний ідентифікатор користувача"
+        },
+        "login": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 20,
+          "pattern": "^[a-zA-Z0-9_]+$",
+          "description": "Логін користувача (лише латиниця, цифри та підкреслення)"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "writeOnly": true,
+          "description": "Пароль (не повертається у відповіді API, але присутній при створенні)"
+        },
+        "firstName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lastName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contactInfo": {
+          "type": "object",
+          "description": "Контактні дані користувача (телефон або email)",
+          "properties": {
+            "phone": {
+              "type": "string",
+              "pattern": "^\\+380\\d{9}$",
+              "description": "Телефон у форматі +380XXXXXXXXX"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "description": "Електронна пошта"
+            }
+          },
+          "minProperties": 1
+        }
+      }
+    },
+    "rack": {
+      "type": "object",
+      "required": [
+        "rackId",
+        "number",
+        "type",
+        "status",
+        "pricePerDay",
+        "dimensions"
+      ],
+      "properties": {
+        "rackId": {
+          "type": "string"
+        },
+        "sectionCode": {
+          "type": "string",
+          "maxLength": 5,
+          "description": "Необов'язковий код секції"
+        },
+        "number": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Номер стелажу"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "STANDARD",
+            "REFRIGERATED",
+            "SECURE"
+          ],
+          "description": "Тип стелажу"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "FREE",
+            "OCCUPIED"
+          ],
+          "description": "Поточний статус стелажу"
+        },
+        "pricePerDay": {
+          "type": "number",
+          "exclusiveMinimum": 0.0,
+          "exclusiveMaximum": 1000.0,
+          "description": "Вартість оренди за день"
+        },
+        "dimensions": {
+          "type": "object",
+          "required": [
+            "width",
+            "height",
+            "depth"
+          ],
+          "properties": {
+            "width": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "depth": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "tenantId": {
+          "type": ["string", "null"],
+          "description": "ID орендаря, якщо стелаж зайнятий"
+        }
+      }
+    },
+    "order": {
+      "type": "object",
+      "required": [
+        "orderId",
+        "userId",
+        "startDate",
+        "endDate",
+        "rackCount",
+        "desiredType",
+        "status"
+      ],
+      "properties": {
+        "orderId": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "rackCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Кількість замовлених місць"
+        },
+        "desiredType": {
+          "enum": [
+            "STANDARD",
+            "REFRIGERATED",
+            "SECURE"
+          ]
+        },
+        "assignedRacks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Список ID виданих стелажів (заповнюється після затвердження)"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "CREATED",
+            "CONFIRMED",
+            "ACTIVE",
+            "FINISHED",
+            "CANCELLED"
+          ]
+        }
+      }
+    },
+    "payment": {
+      "type": "object",
+      "required": [
+        "paymentId",
+        "orderId",
+        "amount",
+        "date"
+      ],
+      "properties": {
+        "paymentId": {
+          "type": "string"
+        },
+        "orderId": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Сума оплати (має бути суворо більше 0)"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}
