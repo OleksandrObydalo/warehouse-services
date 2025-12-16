@@ -14,16 +14,16 @@ import java.util.List;
 public class PlaceServiceClient {
 
     private final RestTemplate restTemplate;
-    private final String placeServiceUrl;
+    private final String apiGatewayUrl;
 
     public PlaceServiceClient(RestTemplate restTemplate,
-                             @Value("${place.service.url}") String placeServiceUrl) {
+                             @Value("${api.gateway.url}") String apiGatewayUrl) {
         this.restTemplate = restTemplate;
-        this.placeServiceUrl = placeServiceUrl;
+        this.apiGatewayUrl = apiGatewayUrl;
     }
 
     public List<PlaceDTO> getAllFreePlaces() {
-        String url = placeServiceUrl + "/api/places/free";
+        String url = apiGatewayUrl + "/api/places/free";
         ResponseEntity<List<PlaceDTO>> response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
@@ -34,7 +34,7 @@ public class PlaceServiceClient {
     }
 
     public List<PlaceDTO> getPlacesByUserId(String userId) {
-        String url = placeServiceUrl + "/api/places/user/" + userId;
+        String url = apiGatewayUrl + "/api/places/user/" + userId;
         ResponseEntity<List<PlaceDTO>> response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,

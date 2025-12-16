@@ -1,0 +1,59 @@
+# API Gateway Configuration
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      # Enable discovery locator for automatic route creation
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      # Manual route configuration for better control
+      routes:
+        # Place Service Routes
+        - id: place-service
+          uri: lb://place-service
+          predicates:
+            - Path=/api/places/**
+
+        # Order Service Routes
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+
+        # Payment Service Routes
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+
+server:
+  port: 8080
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# Logging
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.netflix: INFO
+    reactor.netty: INFO
+
+# Management endpoints (optional, for monitoring)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway, health, info
+

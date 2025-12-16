@@ -14,23 +14,23 @@ import java.util.List;
 public class PaymentServiceClient {
 
     private final RestTemplate restTemplate;
-    private final String paymentServiceUrl;
+    private final String apiGatewayUrl;
 
     public PaymentServiceClient(RestTemplate restTemplate,
-                               @Value("${payment.service.url}") String paymentServiceUrl) {
+                               @Value("${api.gateway.url}") String apiGatewayUrl) {
         this.restTemplate = restTemplate;
-        this.paymentServiceUrl = paymentServiceUrl;
+        this.apiGatewayUrl = apiGatewayUrl;
     }
 
     public PaymentDTO createPayment(Object request) {
-        String url = paymentServiceUrl + "/api/payments";
+        String url = apiGatewayUrl + "/api/payments";
         ResponseEntity<PaymentDTO> response = restTemplate.postForEntity(
                 url, request, PaymentDTO.class);
         return response.getBody();
     }
 
     public List<PaymentDTO> getAllPayments() {
-        String url = paymentServiceUrl + "/api/payments";
+        String url = apiGatewayUrl + "/api/payments";
         ResponseEntity<List<PaymentDTO>> response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
@@ -41,7 +41,7 @@ public class PaymentServiceClient {
     }
 
     public List<PaymentDTO> getPaymentsByUserId(String userId) {
-        String url = paymentServiceUrl + "/api/payments/user/" + userId;
+        String url = apiGatewayUrl + "/api/payments/user/" + userId;
         ResponseEntity<List<PaymentDTO>> response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
@@ -52,7 +52,7 @@ public class PaymentServiceClient {
     }
 
     public List<PaymentDTO> getPaymentsByOrderId(String orderId) {
-        String url = paymentServiceUrl + "/api/payments/order/" + orderId;
+        String url = apiGatewayUrl + "/api/payments/order/" + orderId;
         ResponseEntity<List<PaymentDTO>> response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,

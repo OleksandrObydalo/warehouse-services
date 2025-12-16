@@ -16,23 +16,23 @@ import java.util.List;
 public class OrderServiceClient {
 
     private final RestTemplate restTemplate;
-    private final String orderServiceUrl;
+    private final String apiGatewayUrl;
 
     public OrderServiceClient(RestTemplate restTemplate,
-                             @Value("${order.service.url}") String orderServiceUrl) {
+                             @Value("${api.gateway.url}") String apiGatewayUrl) {
         this.restTemplate = restTemplate;
-        this.orderServiceUrl = orderServiceUrl;
+        this.apiGatewayUrl = apiGatewayUrl;
     }
 
     public OrderDTO createOrderForPlaces(Object request) {
-        String url = orderServiceUrl + "/api/orders";
+        String url = apiGatewayUrl + "/api/orders";
         ResponseEntity<OrderDTO> response = restTemplate.postForEntity(
                 url, request, OrderDTO.class);
         return response.getBody();
     }
 
     public List<OrderDTO> getOrdersByDateRange(LocalDate startDate, LocalDate endDate) {
-        String url = orderServiceUrl + "/api/orders/date-range?startDate=" + 
+        String url = apiGatewayUrl + "/api/orders/date-range?startDate=" + 
                 startDate + "&endDate=" + endDate;
         ResponseEntity<List<OrderDTO>> response = restTemplate.exchange(
                 url,
@@ -44,7 +44,7 @@ public class OrderServiceClient {
     }
 
     public OrderDTO confirmOrderById(String orderId) {
-        String url = orderServiceUrl + "/api/orders/" + orderId + "/confirm";
+        String url = apiGatewayUrl + "/api/orders/" + orderId + "/confirm";
         ResponseEntity<OrderDTO> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
@@ -55,7 +55,7 @@ public class OrderServiceClient {
     }
 
     public OrderDTO cancelOrderById(String orderId) {
-        String url = orderServiceUrl + "/api/orders/" + orderId + "/cancel";
+        String url = apiGatewayUrl + "/api/orders/" + orderId + "/cancel";
         ResponseEntity<OrderDTO> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
@@ -66,7 +66,7 @@ public class OrderServiceClient {
     }
 
     public OrderDTO startOrderById(String orderId) {
-        String url = orderServiceUrl + "/api/orders/" + orderId + "/start";
+        String url = apiGatewayUrl + "/api/orders/" + orderId + "/start";
         ResponseEntity<OrderDTO> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
@@ -77,7 +77,7 @@ public class OrderServiceClient {
     }
 
     public OrderDTO finishOrderById(String orderId) {
-        String url = orderServiceUrl + "/api/orders/" + orderId + "/finish";
+        String url = apiGatewayUrl + "/api/orders/" + orderId + "/finish";
         ResponseEntity<OrderDTO> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
