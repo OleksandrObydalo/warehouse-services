@@ -1,11 +1,11 @@
-org\example\placeservice\PlaceServiceApplication.class
 org\example\placeservice\model\Place.class
 org\example\placeservice\repository\PlaceRepository.class
 org\example\placeservice\service\PlaceService.class
-org\example\placeservice\dto\PlaceDTO$DimensionsDTO.class
-org\example\placeservice\model\Place$RackType.class
 org\example\placeservice\config\DataInitializer.class
 org\example\placeservice\dto\PlaceDTO.class
 org\example\placeservice\model\Place$RackStatus.class
 org\example\placeservice\controller\PlaceController.class
 org\example\placeservice\dto\GivePlacesRequestDTO.class
+org\example\placeservice\PlaceServiceApplication.class
+org\example\placeservice\dto\PlaceDTO$DimensionsDTO.class
+org\example\placeservice\model\Place$RackType.class

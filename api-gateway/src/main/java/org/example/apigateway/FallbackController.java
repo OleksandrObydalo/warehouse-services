@@ -9,11 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Fallback Controller for Circuit Breaker
- * 
- * Provides fallback responses when services are unavailable
- */
 @RestController
 @RequestMapping("/fallback")
 public class FallbackController {

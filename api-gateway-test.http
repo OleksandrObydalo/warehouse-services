@@ -1,0 +1,350 @@
+### API Gateway Testing - Full Cycle: Rent Places
+### Base URL: http://localhost:8080 (API Gateway - Single Entry Point)
+### All requests go through API Gateway which routes to appropriate microservices
+
+###############################################################################
+### STEP 1: Check Available Free Places
+### Route: API Gateway -> Place Service
+###############################################################################
+
+### 1.1 Get all free places
+GET http://localhost:8080/api/places/free
+Accept: application/json
+
+### Expected: List of available places (racks)
+
+###
+
+### 1.2 Get free places by type (STANDARD)
+GET http://localhost:8080/api/places/free/type/STANDARD
+Accept: application/json
+
+###
+
+### 1.3 Get free places by type (REFRIGERATED)
+GET http://localhost:8080/api/places/free/type/REFRIGERATED
+Accept: application/json
+
+###
+
+### 1.4 Get free places by type (SECURE)
+GET http://localhost:8080/api/places/free/type/SECURE
+Accept: application/json
+
+###
+
+###############################################################################
+### STEP 2: Create Order to Rent Places
+### Route: API Gateway -> Order Service -> Place Service (internal call)
+###############################################################################
+
+### 2.1 Create order for STANDARD places (User: user123)
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "userId": "u001",
+  "rackCount": 1,
+  "desiredType": "REFRIGERATED",
+  "startDate": "2025-12-17",
+  "endDate": "2026-01-17"
+}
+
+### Expected: Order created with status PENDING
+### Save the orderId from response for next steps!
+### Example response: {"orderId": "some-uuid", "status": "PENDING", ...}
+
+###
+
+### 2.2 Get orders by date range (verify order was created)
+GET http://localhost:8080/api/orders/date-range?startDate=2025-01-01&endDate=2027-12-31
+Accept: application/json
+
+### Expected: List containing the order we just created
+
+###
+
+###############################################################################
+### STEP 3: Confirm Order (Allocate Places to User)
+### Route: API Gateway -> Order Service -> Place Service (allocate places)
+###############################################################################
+
+### 3.1 Confirm order (REPLACE {orderId} with actual ID from Step 2.1)
+PUT http://localhost:8080/api/orders/ord10b624b5/confirm
+Accept: application/json
+
+### Example with actual ID:
+# PUT http://localhost:8080/api/orders/a1b2c3d4-e5f6-7890-abcd-ef1234567890/confirm
+
+### Expected: Order status changes to CONFIRMED
+### Places are now allocated to user123
+
+###
+
+### 3.2 Verify places are allocated - check user's places
+GET http://localhost:8080/api/places/user/u001
+Accept: application/json
+
+### Expected: List of places allocated to user123
+
+###
+
+### 3.3 Verify places are no longer free
+GET http://localhost:8080/api/places/free/type/STANDARD
+Accept: application/json
+
+### Expected: The allocated places should NOT appear in free places list
+
+###
+
+###############################################################################
+### STEP 4: Create Payment for Order
+### Route: API Gateway -> Payment Service
+###############################################################################
+
+### 4.1 Create payment (REPLACE {orderId} with actual ID)
+POST http://localhost:8080/api/payments
+Content-Type: application/json
+
+{
+  "orderId": "ord10b624b5",
+  "userId": "u001",
+  "amount": 100.00,
+  "paymentMethod": "CREDIT_CARD",
+  "paymentDate": "2025-12-17"
+}
+
+### Expected: Payment created successfully
+
+###
+
+### 4.2 Get all payments
+GET http://localhost:8080/api/payments
+Accept: application/json
+
+### Expected: List of all payments including the one we just created
+
+###
+
+### 4.3 Get payments by user
+GET http://localhost:8080/api/payments/user/user123
+Accept: application/json
+
+### Expected: Payments for user123
+
+###
+
+### 4.4 Get payments by order (REPLACE {orderId})
+GET http://localhost:8080/api/payments/order/{orderId}
+Accept: application/json
+
+### Expected: Payment(s) for specific order
+
+###
+
+###############################################################################
+### STEP 5: Start Order (Begin Using Places)
+### Route: API Gateway -> Order Service
+###############################################################################
+
+### 5.1 Start order (REPLACE {orderId})
+PUT http://localhost:8080/api/orders/{orderId}/start
+Accept: application/json
+
+### Expected: Order status changes to IN_PROGRESS
+
+###
+
+### 5.2 Verify order status
+GET http://localhost:8080/api/orders/date-range?startDate=2025-12-01&endDate=2026-12-31
+Accept: application/json
+
+### Expected: Order shows status IN_PROGRESS
+
+###
+
+###############################################################################
+### STEP 6: Finish Order (Release Places)
+### Route: API Gateway -> Order Service -> Place Service (free places)
+###############################################################################
+
+### 6.1 Finish order (REPLACE {orderId})
+PUT http://localhost:8080/api/orders/ord10b624b5/finish
+Accept: application/json
+
+### Expected: Order status changes to COMPLETED
+### Places are automatically freed
+
+###
+
+### 6.2 Verify places are freed
+GET http://localhost:8080/api/places/free/type/STANDARD
+Accept: application/json
+
+### Expected: Previously allocated places are now FREE again
+
+###
+
+### 6.3 Verify user no longer has places
+GET http://localhost:8080/api/places/user/user123
+Accept: application/json
+
+### Expected: Empty list or places without the finished order's places
+
+###
+
+###############################################################################
+### STEP 7: Alternative Flow - Cancel Order
+### Route: API Gateway -> Order Service -> Place Service (free places)
+###############################################################################
+
+### 7.1 Create another order to demonstrate cancellation
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "userId": "user456",
+  "rackCount": 1,
+  "desiredType": "REFRIGERATED",
+  "startDate": "2025-12-20",
+  "endDate": "2026-02-20"
+}
+
+### Save the orderId for cancellation
+
+###
+
+### 7.2 Confirm the order
+PUT http://localhost:8080/api/orders/{orderId}/confirm
+Accept: application/json
+
+###
+
+### 7.3 Cancel order (REPLACE {orderId})
+PUT http://localhost:8080/api/orders/{orderId}/cancel
+Accept: application/json
+
+### Expected: Order status changes to CANCELLED
+### Places are automatically freed back to available pool
+
+###
+
+### 7.4 Verify places are freed after cancellation
+GET http://localhost:8080/api/places/free/type/REFRIGERATED
+Accept: application/json
+
+### Expected: Cancelled order's places are FREE again
+
+###
+
+###############################################################################
+### BONUS: Test Load Balancing (Run multiple Place Service instances)
+###############################################################################
+
+### Run these commands in separate terminals:
+# Terminal 1: cd place-service && mvn spring-boot:run
+# Terminal 2: cd place-service && mvn spring-boot:run -Dserver.port=8091
+# Terminal 3: cd place-service && mvn spring-boot:run -Dserver.port=8092
+
+### Then make multiple requests and watch the logs:
+
+### Request 1
+GET http://localhost:8080/api/places/free
+Accept: application/json
+
+###
+
+### Request 2
+GET http://localhost:8080/api/places/free
+Accept: application/json
+
+###
+
+### Request 3
+GET http://localhost:8080/api/places/free
+Accept: application/json
+
+###
+
+### Request 4
+GET http://localhost:8080/api/places/free
+Accept: application/json
+
+###
+
+### Request 5
+GET http://localhost:8080/api/places/free
+Accept: application/json
+
+###
+
+### Watch the Place Service terminal logs - requests will be distributed
+### in Round Robin fashion across all 3 instances!
+
+###############################################################################
+### VERIFICATION: Check Eureka Service Registry
+###############################################################################
+
+### Open in browser: http://localhost:8761
+### You should see all registered services:
+### - API-GATEWAY
+### - PLACE-SERVICE (1 or more instances)
+### - ORDER-SERVICE
+### - PAYMENT-SERVICE
+
+###############################################################################
+### COMPLETE WORKFLOW EXAMPLE (Copy orderId between steps)
+###############################################################################
+
+### WORKFLOW STEP 1: Get free places
+GET http://localhost:8080/api/places/free/type/STANDARD
+
+### WORKFLOW STEP 2: Create order
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "userId": "testuser",
+  "rackCount": 1,
+  "desiredType": "STANDARD",
+  "startDate": "2025-12-17",
+  "endDate": "2026-01-17"
+}
+
+### Copy orderId from response, e.g., "orderId": "abc-123-def"
+
+### WORKFLOW STEP 3: Confirm order (paste orderId)
+PUT http://localhost:8080/api/orders/abc-123-def/confirm
+
+### WORKFLOW STEP 4: Create payment (paste orderId)
+POST http://localhost:8080/api/payments
+Content-Type: application/json
+
+{
+  "orderId": "abc-123-def",
+  "userId": "testuser",
+  "amount": 50.00,
+  "paymentMethod": "CREDIT_CARD"
+}
+
+### WORKFLOW STEP 5: Start order
+PUT http://localhost:8080/api/orders/ord10b624b5/start
+
+### WORKFLOW STEP 6: Finish order (releases places)
+PUT http://localhost:8080/api/orders/ord10b624b5/finish
+
+### WORKFLOW STEP 7: Verify places are free again
+GET http://localhost:8080/api/places/free/type/STANDARD
+
+###############################################################################
+### END OF API GATEWAY TESTS
+###############################################################################
+
+### Notes:
+### 1. All requests go through API Gateway (port 8080)
+### 2. API Gateway routes to appropriate microservices via Eureka
+### 3. Replace {orderId} with actual order IDs from responses
+### 4. Order lifecycle: PENDING -> CONFIRMED -> IN_PROGRESS -> COMPLETED
+### 5. Alternative: PENDING -> CONFIRMED -> CANCELLED
+### 6. Places are automatically managed (allocated/freed) by Order Service
+
