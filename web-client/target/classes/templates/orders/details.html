@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - Warehouse Management</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        .navbar-brand {
+            font-weight: 600;
+        }
+        .detail-card {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+        .rack-badge {
+            margin: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/" th:href="@{/}">
+                <i class="bi bi-box-seam"></i> Warehouse Management
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/" th:href="@{/}">
+                            <i class="bi bi-house-door"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/orders" th:href="@{/orders}">
+                            <i class="bi bi-clipboard-check"></i> Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/places/free" th:href="@{/places/free}">
+                            <i class="bi bi-archive"></i> Free Places
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/orders/create" th:href="@{/orders/create}">
+                            <i class="bi bi-plus-circle"></i> New Order
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="detail-card">
+            <!-- Success Message -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span th:text="${successMessage}">Success message</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/" th:href="@{/}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/orders" th:href="@{/orders}">Orders</a></li>
+                    <li class="breadcrumb-item active" th:text="${orderDetails.order.orderId}">Order Details</li>
+                </ol>
+            </nav>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-file-text text-primary"></i> Order Details</h2>
+                <span th:class="${orderDetails.order.status == 'CONFIRMED' ? 'badge bg-success fs-5' : 
+                                 (orderDetails.order.status == 'PENDING' ? 'badge bg-warning fs-5' : 'badge bg-secondary fs-5')}"
+                      th:text="${orderDetails.order.status}">
+                    PENDING
+                </span>
+            </div>
+
+            <!-- COMPLEX AGGREGATION: Order Information + Payment Information -->
+            
+            <!-- Order Information Card -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-clipboard-data"></i> Order Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="detail-label">Order ID</div>
+                            <div class="fs-5" th:text="${orderDetails.order.orderId}">ORD-001</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">User ID</div>
+                            <div class="fs-5" th:text="${orderDetails.order.userId}">USER-001</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">Place Type</div>
+                            <div>
+                                <span th:text="${orderDetails.order.desiredType}" 
+                                      th:class="${orderDetails.order.desiredType == 'STANDARD' ? 'badge bg-primary fs-6' : 
+                                                 (orderDetails.order.desiredType == 'COLD' ? 'badge bg-info fs-6' : 'badge bg-warning fs-6')}">
+                                    STANDARD
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">Number of Racks</div>
+                            <div class="fs-5">
+                                <span class="badge bg-secondary fs-6" th:text="${orderDetails.order.rackCount}">1</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">Start Date</div>
+                            <div class="fs-5">
+                                <i class="bi bi-calendar-check text-success"></i>
+                                <span th:text="${#temporals.format(orderDetails.order.startDate, 'dd MMMM yyyy')}">01 January 2025</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">End Date</div>
+                            <div class="fs-5">
+                                <i class="bi bi-calendar-x text-danger"></i>
+                                <span th:text="${#temporals.format(orderDetails.order.endDate, 'dd MMMM yyyy')}">31 December 2025</span>
+                            </div>
+                        </div>
+                        <div class="col-12" th:if="${orderDetails.order.assignedRacks != null && !orderDetails.order.assignedRacks.isEmpty()}">
+                            <div class="detail-label">Assigned Racks</div>
+                            <div>
+                                <span th:each="rack : ${orderDetails.order.assignedRacks}" 
+                                      class="badge bg-info rack-badge" 
+                                      th:text="${rack}">
+                                    RACK-001
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Information Card (COMPLEX AGGREGATION) -->
+            <div class="card shadow mb-4">
+                <div class="card-header" th:classappend="${orderDetails.hasPaid ? 'bg-success' : 'bg-warning'} + ' text-white'">
+                    <h5 class="mb-0">
+                        <i class="bi bi-credit-card"></i> Payment Information
+                        <span th:if="${orderDetails.hasPaid}" class="float-end">
+                            <i class="bi bi-check-circle"></i> Paid
+                        </span>
+                        <span th:unless="${orderDetails.hasPaid}" class="float-end">
+                            <i class="bi bi-exclamation-triangle"></i> Not Paid
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Payment Status -->
+                    <div th:if="${orderDetails.payments == null || orderDetails.payments.isEmpty()}" 
+                         class="alert alert-warning" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>No payments found for this order.</strong>
+                        <p class="mb-0 small">This order has not been paid yet. Payment is required to confirm the order.</p>
+                    </div>
+
+                    <!-- Payments List -->
+                    <div th:if="${orderDetails.payments != null && !orderDetails.payments.isEmpty()}">
+                        <div class="alert alert-success" role="alert">
+                            <i class="bi bi-check-circle"></i>
+                            <strong>Payment received!</strong> This order has been paid.
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Payment ID</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="payment : ${orderDetails.payments}">
+                                        <td>
+                                            <strong th:text="${payment.paymentId}">PAY-001</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success fs-6">
+                                                $<span th:text="${payment.amount}">100.00</span>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-calendar-event"></i>
+                                            <span th:text="${#temporals.format(payment.date, 'dd MMM yyyy HH:mm')}">01 Jan 2025 12:00</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Card -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-gear"></i> Actions</h5>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <!-- Confirm Order Button (only if PENDING) -->
+                        <form th:if="${orderDetails.order.status == 'PENDING'}" 
+                              th:action="@{/orders/{id}/confirm(id=${orderDetails.order.orderId})}" 
+                              method="post"
+                              onsubmit="return confirm('Are you sure you want to confirm this order?');">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Confirm Order
+                            </button>
+                        </form>
+                        
+                        <!-- View Payments Button -->
+                        <a th:href="@{/payments/order/{orderId}(orderId=${orderDetails.order.orderId})}" 
+                           class="btn btn-info">
+                            <i class="bi bi-credit-card"></i> View Payments
+                        </a>
+                        
+                        <!-- Back to Orders Button -->
+                        <a href="/orders" th:href="@{/orders}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="alert alert-info mt-4" role="alert">
+                <h6 class="alert-heading"><i class="bi bi-info-circle"></i> Complex Aggregation Note</h6>
+                <p class="small mb-0">
+                    This page demonstrates <strong>complex aggregation</strong> by combining data from two different microservices:
+                </p>
+                <ul class="small mb-0 mt-2">
+                    <li><strong>Order Service</strong>: Provides order details (ID, user, dates, racks, status)</li>
+                    <li><strong>Payment Service</strong>: Provides payment information for the order</li>
+                </ul>
+                <p class="small mb-0 mt-2">
+                    Both services are accessed through the API Gateway, and the data is combined and displayed on this single page.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p class="text-muted mb-0">
+                <i class="bi bi-box-seam"></i> Warehouse Management System &copy; 2025
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

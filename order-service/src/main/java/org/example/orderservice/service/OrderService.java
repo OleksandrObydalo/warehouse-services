@@ -60,6 +60,12 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
+    public OrderDTO getOrderById(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElse(null);
+        return order != null ? convertToDTO(order) : null;
+    }
+
     @Transactional
     public OrderDTO confirmOrderById(String orderId) {
         Order order = orderRepository.findById(orderId)

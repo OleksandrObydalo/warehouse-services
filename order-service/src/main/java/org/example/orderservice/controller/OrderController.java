@@ -44,6 +44,20 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderDTO> getOrderById(@PathVariable String orderId) {
+        try {
+            OrderDTO order = orderService.getOrderById(orderId);
+            if (order != null) {
+                return ResponseEntity.ok(order);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @PutMapping("/{orderId}/confirm")
     public ResponseEntity<OrderDTO> confirmOrderById(@PathVariable String orderId) {
         try {

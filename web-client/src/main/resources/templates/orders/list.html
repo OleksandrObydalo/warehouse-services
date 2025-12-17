@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - Warehouse Management</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        .navbar-brand {
+            font-weight: 600;
+        }
+        .table-responsive {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .badge-status {
+            padding: 0.5em 0.75em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/" th:href="@{/}">
+                <i class="bi bi-box-seam"></i> Warehouse Management
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/" th:href="@{/}">
+                            <i class="bi bi-house-door"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/orders" th:href="@{/orders}">
+                            <i class="bi bi-clipboard-check"></i> Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/places/free" th:href="@{/places/free}">
+                            <i class="bi bi-archive"></i> Free Places
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/orders/create" th:href="@{/orders/create}">
+                            <i class="bi bi-plus-circle"></i> New Order
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <!-- Success Message -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i>
+            <span th:text="${successMessage}">Success message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-clipboard-check text-primary"></i> All Orders</h2>
+            <div>
+                <span class="badge bg-info fs-6 me-2" th:text="${orders != null ? orders.size() : 0} + ' Orders'">
+                    0 Orders
+                </span>
+                <a href="/orders/create" th:href="@{/orders/create}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> New Order
+                </a>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${orders == null || orders.isEmpty()}" class="alert alert-info" role="alert">
+            <i class="bi bi-info-circle"></i> No orders found. <a href="/orders/create" th:href="@{/orders/create}">Create your first order</a>
+        </div>
+
+        <!-- Orders Table -->
+        <div th:if="${orders != null && !orders.isEmpty()}" class="card shadow">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order ID</th>
+                                <th>User ID</th>
+                                <th>Type</th>
+                                <th>Racks</th>
+                                <th>Period</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="order : ${orders}">
+                                <td>
+                                    <strong th:text="${order.orderId}">ORD-001</strong>
+                                </td>
+                                <td th:text="${order.userId}">USER-001</td>
+                                <td>
+                                    <span th:text="${order.desiredType}" 
+                                          th:class="${order.desiredType == 'STANDARD' ? 'badge bg-primary' : 
+                                                     (order.desiredType == 'COLD' ? 'badge bg-info' : 'badge bg-warning')}">
+                                        STANDARD
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary" th:text="${order.rackCount}">1</span>
+                                </td>
+                                <td>
+                                    <small>
+                                        <span th:text="${#temporals.format(order.startDate, 'dd/MM/yyyy')}">01/01/2025</span>
+                                        <br>to<br>
+                                        <span th:text="${#temporals.format(order.endDate, 'dd/MM/yyyy')}">31/12/2025</span>
+                                    </small>
+                                </td>
+                                <td>
+                                    <span th:class="${order.status == 'CONFIRMED' ? 'badge bg-success' : 
+                                                     (order.status == 'PENDING' ? 'badge bg-warning' : 'badge bg-secondary')} + ' badge-status'"
+                                          th:text="${order.status}">
+                                        PENDING
+                                    </span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/orders/{id}(id=${order.orderId})}" 
+                                       class="btn btn-sm btn-outline-primary"
+                                       title="View Details">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div th:if="${orders != null && !orders.isEmpty()}" class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title"><i class="bi bi-info-circle"></i> Order Status Legend</h6>
+                <div class="d-flex gap-3">
+                    <span><span class="badge bg-warning">PENDING</span> - Awaiting confirmation</span>
+                    <span><span class="badge bg-success">CONFIRMED</span> - Order confirmed</span>
+                    <span><span class="badge bg-secondary">CANCELLED</span> - Order cancelled</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p class="text-muted mb-0">
+                <i class="bi bi-box-seam"></i> Warehouse Management System &copy; 2025
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
