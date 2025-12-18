@@ -155,6 +155,78 @@ public class WarehouseWebService {
         return response.getBody();
     }
 
+    /**
+     * Cancel an order.
+     * @param orderId Order ID to cancel
+     * @return Cancelled order
+     */
+    public OrderDTO cancelOrder(String orderId) {
+        String url = gatewayUrl + "/api/orders/{id}/cancel";
+        logger.debug("Cancelling order with ID: {}", orderId);
+        
+        Map<String, String> params = new HashMap<>();
+        params.put("id", orderId);
+        
+        ResponseEntity<OrderDTO> response = restTemplate.exchange(
+                url,
+                HttpMethod.PUT,
+                null,
+                OrderDTO.class,
+                params
+        );
+        
+        logger.info("Order cancelled: {}", orderId);
+        return response.getBody();
+    }
+
+    /**
+     * Start an order.
+     * @param orderId Order ID to start
+     * @return Started order
+     */
+    public OrderDTO startOrder(String orderId) {
+        String url = gatewayUrl + "/api/orders/{id}/start";
+        logger.debug("Starting order with ID: {}", orderId);
+        
+        Map<String, String> params = new HashMap<>();
+        params.put("id", orderId);
+        
+        ResponseEntity<OrderDTO> response = restTemplate.exchange(
+                url,
+                HttpMethod.PUT,
+                null,
+                OrderDTO.class,
+                params
+        );
+        
+        logger.info("Order started: {}", orderId);
+        return response.getBody();
+    }
+
+    /**
+     * Finish an order.
+     * @param orderId Order ID to finish
+     * @return Finished order
+     */
+    public OrderDTO finishOrder(String orderId) {
+        String url = gatewayUrl + "/api/orders/{id}/finish";
+        logger.debug("Finishing order with ID: {}", orderId);
+        
+        Map<String, String> params = new HashMap<>();
+        params.put("id", orderId);
+        
+        ResponseEntity<OrderDTO> response = restTemplate.exchange(
+                url,
+                HttpMethod.PUT,
+                null,
+                OrderDTO.class,
+                params
+        );
+        
+        logger.info("Order finished: {}", orderId);
+        return response.getBody();
+    }
+
     // ==================== PAYMENT SERVICE ENDPOINTS ====================
 
     /**
@@ -187,6 +259,49 @@ public class WarehouseWebService {
             // Return empty list if no payments found (instead of throwing exception)
             return List.of();
         }
+    }
+
+    /**
+     * Create a payment for an order.
+     * @param paymentDTO Payment data
+     * @return Created payment
+     */
+    public PaymentDTO createPayment(PaymentDTO paymentDTO) {
+        String url = gatewayUrl + "/api/payments";
+        logger.debug("Creating payment for order: {}", paymentDTO.getOrderId());
+        
+        HttpEntity<PaymentDTO> request = new HttpEntity<>(paymentDTO);
+        ResponseEntity<PaymentDTO> response = restTemplate.postForEntity(url, request, PaymentDTO.class);
+        
+        logger.info("Payment created with ID: {}", response.getBody() != null ? response.getBody().getPaymentId() : "null");
+        return response.getBody();
+    }
+
+    // ==================== PLACE SERVICE ENDPOINTS ====================
+
+    /**
+     * Get places rented by a specific user.
+     * @param userId User ID
+     * @return List of places rented by the user
+     */
+    public List<PlaceDTO> getPlacesByUserId(String userId) {
+        String url = gatewayUrl + "/api/places/user/{userId}";
+        logger.debug("Fetching places for user: {}", userId);
+        
+        Map<String, String> params = new HashMap<>();
+        params.put("userId", userId);
+        
+        ResponseEntity<List<PlaceDTO>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<PlaceDTO>>() {},
+                params
+        );
+        
+        logger.debug("Retrieved {} places for user {}", 
+                response.getBody() != null ? response.getBody().size() : 0, userId);
+        return response.getBody();
     }
 }
 

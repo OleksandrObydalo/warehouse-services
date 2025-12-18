@@ -130,7 +130,7 @@ public class OrderController {
         logger.info("Confirming order: {}", orderId);
         
         try {
-            OrderDTO confirmedOrder = warehouseService.confirmOrder(orderId);
+            warehouseService.confirmOrder(orderId);
             redirectAttributes.addFlashAttribute("successMessage", 
                     "Order confirmed successfully!");
             
@@ -138,6 +138,108 @@ public class OrderController {
         } catch (Exception e) {
             logger.error("Error confirming order: {}", orderId, e);
             throw e; // Let GlobalExceptionHandler handle it
+        }
+    }
+
+    /**
+     * Cancel an order.
+     */
+    @PostMapping("/{orderId}/cancel")
+    public String cancelOrder(@PathVariable String orderId, RedirectAttributes redirectAttributes) {
+        logger.info("Cancelling order: {}", orderId);
+        
+        try {
+            warehouseService.cancelOrder(orderId);
+            redirectAttributes.addFlashAttribute("successMessage", 
+                    "Order cancelled successfully!");
+            
+            return "redirect:/orders/" + orderId;
+        } catch (Exception e) {
+            logger.error("Error cancelling order: {}", orderId, e);
+            throw e;
+        }
+    }
+
+    /**
+     * Start an order.
+     */
+    @PostMapping("/{orderId}/start")
+    public String startOrder(@PathVariable String orderId, RedirectAttributes redirectAttributes) {
+        logger.info("Starting order: {}", orderId);
+        
+        try {
+            warehouseService.startOrder(orderId);
+            redirectAttributes.addFlashAttribute("successMessage", 
+                    "Order started successfully!");
+            
+            return "redirect:/orders/" + orderId;
+        } catch (Exception e) {
+            logger.error("Error starting order: {}", orderId, e);
+            throw e;
+        }
+    }
+
+    /**
+     * Finish an order.
+     */
+    @PostMapping("/{orderId}/finish")
+    public String finishOrder(@PathVariable String orderId, RedirectAttributes redirectAttributes) {
+        logger.info("Finishing order: {}", orderId);
+        
+        try {
+            warehouseService.finishOrder(orderId);
+            redirectAttributes.addFlashAttribute("successMessage", 
+                    "Order finished successfully! Places have been freed.");
+            
+            return "redirect:/orders/" + orderId;
+        } catch (Exception e) {
+            logger.error("Error finishing order: {}", orderId, e);
+            throw e;
+        }
+    }
+
+    /**
+     * Show payment form for an order.
+     */
+    @GetMapping("/{orderId}/payment/add")
+    public String showAddPaymentForm(@PathVariable String orderId, Model model) {
+        logger.info("Showing payment form for order: {}", orderId);
+        
+        OrderDTO order = warehouseService.getOrderById(orderId);
+        if (order == null) {
+            throw new RuntimeException("Order not found: " + orderId);
+        }
+        
+        PaymentDTO payment = new PaymentDTO();
+        payment.setOrderId(orderId);
+        payment.setUserId(order.getUserId());
+        
+        model.addAttribute("order", order);
+        model.addAttribute("payment", payment);
+        
+        return "orders/add-payment";
+    }
+
+    /**
+     * Process payment creation.
+     */
+    @PostMapping("/{orderId}/payment/add")
+    public String addPayment(@PathVariable String orderId,
+                            @ModelAttribute PaymentDTO payment,
+                            RedirectAttributes redirectAttributes) {
+        logger.info("Adding payment for order: {}", orderId);
+        
+        try {
+            payment.setOrderId(orderId);
+            PaymentDTO createdPayment = warehouseService.createPayment(payment);
+            
+            redirectAttributes.addFlashAttribute("successMessage", 
+                    "Payment added successfully! Amount: $" + createdPayment.getAmount());
+            
+            return "redirect:/orders/" + orderId;
+        } catch (Exception e) {
+            logger.error("Error adding payment for order: {}", orderId, e);
+            throw e;
         }
     }
 }

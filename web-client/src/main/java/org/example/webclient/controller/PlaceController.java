@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
@@ -37,6 +38,21 @@ public class PlaceController {
         
         logger.info("Displaying {} free places", freePlaces != null ? freePlaces.size() : 0);
         return "places/free";
+    }
+
+    /**
+     * Display places rented by a specific user.
+     */
+    @GetMapping("/user/{userId}")
+    public String showUserPlaces(@PathVariable String userId, Model model) {
+        logger.info("Fetching places for user: {}", userId);
+        
+        List<PlaceDTO> userPlaces = warehouseService.getPlacesByUserId(userId);
+        model.addAttribute("places", userPlaces);
+        model.addAttribute("userId", userId);
+        
+        logger.info("Displaying {} places for user {}", userPlaces != null ? userPlaces.size() : 0, userId);
+        return "places/user";
     }
 }
 

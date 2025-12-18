@@ -219,21 +219,113 @@
             <div class="card shadow">
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-gear"></i> Actions</h5>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <!-- Confirm Order Button (only if PENDING) -->
-                        <form th:if="${orderDetails.order.status == 'PENDING'}" 
-                              th:action="@{/orders/{id}/confirm(id=${orderDetails.order.orderId})}" 
-                              method="post"
-                              onsubmit="return confirm('Are you sure you want to confirm this order?');">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-check-circle"></i> Confirm Order
-                            </button>
-                        </form>
+                    
+                    <!-- Action Buttons based on Order Status -->
+                    <div class="d-flex gap-2 flex-wrap mb-3">
                         
+                        <!-- CREATED Status Actions -->
+                        <div th:if="${orderDetails.order.status == 'CREATED'}">
+                            <!-- Add Payment Button -->
+                            <a th:href="@{/orders/{id}/payment/add(id=${orderDetails.order.orderId})}" 
+                               class="btn btn-success">
+                                <i class="bi bi-plus-circle"></i> Add Payment
+                            </a>
+                            
+                            <!-- Confirm Order Button (with payment check) -->
+                            <form th:if="${orderDetails.hasPaid}" 
+                                  th:action="@{/orders/{id}/confirm(id=${orderDetails.order.orderId})}" 
+                                  method="post"
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Confirm this order? Places will be assigned.');">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Confirm Order
+                                </button>
+                            </form>
+                            
+                            <!-- Disabled Confirm Button (if not paid) -->
+                            <button th:if="${!orderDetails.hasPaid}" 
+                                    type="button" 
+                                    class="btn btn-primary" 
+                                    disabled
+                                    title="Payment required to confirm order"
+                                    onclick="alert('⚠️ Payment Required!\n\nYou must add a payment before confirming this order.\n\nClick \'Add Payment\' button to proceed.');">
+                                <i class="bi bi-check-circle"></i> Confirm Order (Payment Required)
+                            </button>
+                            
+                            <!-- Cancel Order Button -->
+                            <form th:action="@{/orders/{id}/cancel(id=${orderDetails.order.orderId})}" 
+                                  method="post"
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Cancel this order? This action cannot be undone.');">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-x-circle"></i> Cancel Order
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- CONFIRMED Status Actions -->
+                        <div th:if="${orderDetails.order.status == 'CONFIRMED'}">
+                            <!-- Start Order Button -->
+                            <form th:action="@{/orders/{id}/start(id=${orderDetails.order.orderId})}" 
+                                  method="post"
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Start this order?');">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-play-circle"></i> Start Order
+                                </button>
+                            </form>
+                            
+                            <!-- Cancel Order Button -->
+                            <form th:action="@{/orders/{id}/cancel(id=${orderDetails.order.orderId})}" 
+                                  method="post"
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Cancel this order? Assigned places will be freed.');">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-x-circle"></i> Cancel Order
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- ACTIVE Status Actions -->
+                        <div th:if="${orderDetails.order.status == 'ACTIVE'}">
+                            <!-- Add Payment (for extension) -->
+                            <a th:href="@{/orders/{id}/payment/add(id=${orderDetails.order.orderId})}" 
+                               class="btn btn-warning">
+                                <i class="bi bi-plus-circle"></i> Extend Term (Add Payment)
+                            </a>
+                            
+                            <!-- Finish Order Button -->
+                            <form th:action="@{/orders/{id}/finish(id=${orderDetails.order.orderId})}" 
+                                  method="post"
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Finish this order? Places will be freed.');">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-stop-circle"></i> Finish Order
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- FINISHED/CANCELLED Status (No actions) -->
+                        <div th:if="${orderDetails.order.status == 'FINISHED' || orderDetails.order.status == 'CANCELLED'}">
+                            <div class="alert alert-secondary mb-0" role="alert">
+                                <i class="bi bi-info-circle"></i>
+                                This order is <strong th:text="${orderDetails.order.status}">FINISHED</strong>. No actions available.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Common Actions -->
+                    <div class="d-flex gap-2 flex-wrap border-top pt-3">
                         <!-- View Payments Button -->
                         <a th:href="@{/payments/order/{orderId}(orderId=${orderDetails.order.orderId})}" 
                            class="btn btn-info">
-                            <i class="bi bi-credit-card"></i> View Payments
+                            <i class="bi bi-credit-card"></i> View All Payments
+                        </a>
+                        
+                        <!-- View User Places Button -->
+                        <a th:href="@{/places/user/{userId}(userId=${orderDetails.order.userId})}" 
+                           class="btn btn-secondary">
+                            <i class="bi bi-person-badge"></i> View My Places
                         </a>
                         
                         <!-- Back to Orders Button -->

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Payment - Warehouse Management</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        .navbar-brand {
+            font-weight: 600;
+        }
+        .form-card {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/" th:href="@{/}">
+                <i class="bi bi-box-seam"></i> Warehouse Management
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/" th:href="@{/}">
+                            <i class="bi bi-house-door"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/orders" th:href="@{/orders}">
+                            <i class="bi bi-clipboard-check"></i> Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/places/free" th:href="@{/places/free}">
+                            <i class="bi bi-archive"></i> Free Places
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/orders/create" th:href="@{/orders/create}">
+                            <i class="bi bi-plus-circle"></i> New Order
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="form-card">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/" th:href="@{/}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/orders" th:href="@{/orders}">Orders</a></li>
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/orders/{id}(id=${order.orderId})}" th:text="${order.orderId}">Order</a>
+                    </li>
+                    <li class="breadcrumb-item active">Add Payment</li>
+                </ol>
+            </nav>
+
+            <h2 class="mb-4">
+                <i class="bi bi-credit-card text-success"></i> Add Payment
+            </h2>
+
+            <!-- Order Info Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Order Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Order ID:</strong> <span th:text="${order.orderId}">ORD-001</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>User ID:</strong> <span th:text="${order.userId}">USER-001</span>
+                        </div>
+                        <div class="col-md-6 mt-2">
+                            <strong>Status:</strong> 
+                            <span th:class="${order.status == 'CONFIRMED' ? 'badge bg-success' : 
+                                             (order.status == 'CREATED' ? 'badge bg-warning' : 'badge bg-secondary')}"
+                                  th:text="${order.status}">CREATED</span>
+                        </div>
+                        <div class="col-md-6 mt-2">
+                            <strong>Racks:</strong> <span th:text="${order.rackCount}">1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Form -->
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <form th:action="@{/orders/{id}/payment/add(id=${order.orderId})}" 
+                          th:object="${payment}" 
+                          method="post">
+                        
+                        <!-- Amount -->
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">
+                                <i class="bi bi-currency-dollar"></i> Payment Amount <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="amount" 
+                                   th:field="*{amount}" 
+                                   required
+                                   min="0.01"
+                                   step="0.01"
+                                   placeholder="Enter payment amount (e.g., 100.00)">
+                            <div class="form-text">Enter the payment amount in dollars</div>
+                        </div>
+
+                        <!-- Hidden fields -->
+                        <input type="hidden" th:field="*{orderId}">
+                        <input type="hidden" th:field="*{userId}">
+
+                        <!-- Buttons -->
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Add Payment
+                            </button>
+                            <a th:href="@{/orders/{id}(id=${order.orderId})}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Text -->
+            <div class="alert alert-info mt-4" role="alert">
+                <h6 class="alert-heading"><i class="bi bi-info-circle"></i> Payment Information</h6>
+                <ul class="small mb-0">
+                    <li>Payment will be recorded for this order</li>
+                    <li>Orders must be paid before they can be confirmed</li>
+                    <li>You can add multiple payments for an order (e.g., for extending the term)</li>
+                    <li>Payment date will be set automatically to current date/time</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p class="text-muted mb-0">
+                <i class="bi bi-box-seam"></i> Warehouse Management System &copy; 2025
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
