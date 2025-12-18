@@ -13,18 +13,16 @@
     
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
+            padding-top: 56px; /* Account for fixed navbar */
         }
         .hero-section {
             background: white;
             border-radius: 1rem;
             padding: 3rem;
             box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+            margin: 3rem auto;
         }
         .feature-card {
             transition: transform 0.3s, box-shadow 0.3s;
@@ -45,10 +43,27 @@
         .icon-orders { color: #0d6efd; }
         .icon-places { color: #198754; }
         .icon-new { color: #fd7e14; }
-        .icon-payments { color: #6f42c1; }
+        .icon-myplaces { color: #6f42c1; }
     </style>
 </head>
 <body>
+    <!-- Navigation -->
+    <div th:replace="~{fragments/navbar :: navbar('home')}"></div>
+
+    <!-- Success/Error Messages -->
+    <div class="container mt-3" th:if="${successMessage or errorMessage}">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i>
+            <span th:text="${successMessage}">Success message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span th:text="${errorMessage}">Error message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+
     <div class="container">
         <div class="hero-section">
             <div class="text-center mb-5">
@@ -57,7 +72,10 @@
                     Warehouse Management System
                 </h1>
                 <p class="lead text-muted">
-                    Manage your warehouse operations efficiently with our intuitive web interface
+                    Welcome, <strong><span th:text="${username != null ? username : session.username}">User</span></strong>!
+                </p>
+                <p class="text-muted small">
+                    User ID: <span th:text="${userId != null ? userId : session.userId}">u001</span>
                 </p>
             </div>
 
@@ -95,16 +113,15 @@
                     </a>
                 </div>
 
-                <!-- System Info Card -->
+                <!-- My Places Card -->
                 <div class="col-md-6 col-lg-3">
-                    <div class="card border-0 shadow-sm h-100">
+                    <a href="/places/my-places" th:href="@{/places/my-places}" class="feature-card card border-0 shadow-sm">
                         <div class="card-body text-center p-4">
-                            <i class="bi bi-info-circle feature-icon icon-payments"></i>
-                            <h5 class="card-title fw-bold">System Info</h5>
-                            <p class="card-text text-muted">Connected to API Gateway</p>
-                            <span class="badge bg-success">Online</span>
+                            <i class="bi bi-person-badge feature-icon icon-myplaces"></i>
+                            <h5 class="card-title fw-bold">My Places</h5>
+                            <p class="card-text text-muted">View places you are currently renting</p>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
 

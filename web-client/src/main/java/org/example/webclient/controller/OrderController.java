@@ -1,5 +1,6 @@
 package org.example.webclient.controller;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.example.webclient.dto.OrderDTO;
 import org.example.webclient.dto.OrderDetailsDTO;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controller for managing orders.
@@ -30,16 +32,37 @@ public class OrderController {
     }
 
     /**
-     * Display list of all orders.
+     * Helper method to check if logged-in user owns the order.
+     */
+    private void checkOrderOwnership(String orderId, String loggedInUserId) {
+        OrderDTO order = warehouseService.getOrderById(orderId);
+        if (order == null) {
+            throw new RuntimeException("Order not found: " + orderId);
+        }
+        if (!order.getUserId().equals(loggedInUserId)) {
+            logger.warn("User {} attempted to access order {} belonging to user {}", 
+                    loggedInUserId, orderId, order.getUserId());
+            throw new RuntimeException("Access denied: You can only access your own orders");
+        }
+    }
+
+    /**
+     * Display list of orders for the logged-in user.
      */
     @GetMapping
-    public String listOrders(Model model) {
-        logger.info("Fetching all orders");
+    public String listOrders(HttpSession session, Model model) {
+        String userId = (String) session.getAttribute("userId");
+        logger.info("Fetching orders for user: {}", userId);
         
-        List<OrderDTO> orders = warehouseService.getAllOrders();
-        model.addAttribute("orders", orders);
+        List<OrderDTO> allOrders = warehouseService.getAllOrders();
+        // Filter orders to show only the logged-in user's orders
+        List<OrderDTO> userOrders = allOrders.stream()
+                .filter(order -> order.getUserId().equals(userId))
+                .collect(Collectors.toList());
         
-        logger.info("Displaying {} orders", orders != null ? orders.size() : 0);
+        model.addAttribute("orders", userOrders);
+        
+        logger.info("Displaying {} orders for user {}", userOrders.size(), userId);
         return "orders/list";
     }
 
@@ -47,8 +70,11 @@ public class OrderController {
      * Show the form for creating a new order.
      */
     @GetMapping("/create")
-    public String showCreateOrderForm(Model model) {
-        model.addAttribute("order", new OrderDTO());
+    public String showCreateOrderForm(HttpSession session, Model model) {
+        OrderDTO order = new OrderDTO();
+        // Pre-fill user ID from session
+        order.setUserId((String) session.getAttribute("userId"));
+        model.addAttribute("order", order);
         return "orders/create";
     }
 
@@ -58,8 +84,14 @@ public class OrderController {
     @PostMapping("/create")
     public String createOrder(@Valid @ModelAttribute("order") OrderDTO orderDTO,
                             BindingResult bindingResult,
+                            HttpSession session,
                             RedirectAttributes redirectAttributes,
                             Model model) {
+        
+        String loggedInUserId = (String) session.getAttribute("userId");
+        
+        // Ensure user can only create orders for themselves
+        orderDTO.setUserId(loggedInUserId);
         
         // Check for validation errors
         if (bindingResult.hasErrors()) {
@@ -96,8 +128,9 @@ public class OrderController {
      * 3. Combine and display on a single page
      */
     @GetMapping("/{orderId}")
-    public String showOrderDetails(@PathVariable String orderId, Model model) {
-        logger.info("Fetching details for order: {}", orderId);
+    public String showOrderDetails(@PathVariable String orderId, HttpSession session, Model model) {
+        String loggedInUserId = (String) session.getAttribute("userId");
+        logger.info("Fetching details for order: {} by user: {}", orderId, loggedInUserId);
         
         // Step 1: Fetch order details from OrderService via Gateway
         OrderDTO order = warehouseService.getOrderById(orderId);
@@ -105,6 +138,13 @@ public class OrderController {
         if (order == null) {
             logger.warn("Order not found: {}", orderId);
             throw new RuntimeException("Order not found: " + orderId);
+        }
+        
+        // ACCESS CONTROL: Check if order belongs to logged-in user
+        if (!order.getUserId().equals(loggedInUserId)) {
+            logger.warn("User {} attempted to access order {} belonging to user {}", 
+                    loggedInUserId, orderId, order.getUserId());
+            throw new RuntimeException("Access denied: You can only view your own orders");
         }
         
         // Step 2: Fetch payment information from PaymentService via Gateway
@@ -126,10 +166,17 @@ public class OrderController {
      * Confirm an order.
      */
     @PostMapping("/{orderId}/confirm")
-    public String confirmOrder(@PathVariable String orderId, RedirectAttributes redirectAttributes) {
-        logger.info("Confirming order: {}", orderId);
+    public String confirmOrder(@PathVariable String orderId, HttpSession session, RedirectAttributes redirectAttributes) {
+        String loggedInUserId = (String) session.getAttribute("userId");
+        logger.info("Confirming order: {} by user: {}", orderId, loggedInUserId);
         
         try {
+            // Check ownership before confirming
+            OrderDTO order = warehouseService.getOrderById(orderId);
+            if (!order.getUserId().equals(loggedInUserId)) {
+                throw new RuntimeException("Access denied: You can only confirm your own orders");
+            }
+            
             warehouseService.confirmOrder(orderId);
             redirectAttributes.addFlashAttribute("successMessage", 
                     "Order confirmed successfully!");
@@ -145,10 +192,12 @@ public class OrderController {
      * Cancel an order.
      */
     @PostMapping("/{orderId}/cancel")
-    public String cancelOrder(@PathVariable String orderId, RedirectAttributes redirectAttributes) {
-        logger.info("Cancelling order: {}", orderId);
+    public String cancelOrder(@PathVariable String orderId, HttpSession session, RedirectAttributes redirectAttributes) {
+        String loggedInUserId = (String) session.getAttribute("userId");
+        logger.info("Cancelling order: {} by user: {}", orderId, loggedInUserId);
         
         try {
+            checkOrderOwnership(orderId, loggedInUserId);
             warehouseService.cancelOrder(orderId);
             redirectAttributes.addFlashAttribute("successMessage", 
                     "Order cancelled successfully!");
@@ -164,10 +213,12 @@ public class OrderController {
      * Start an order.
      */
     @PostMapping("/{orderId}/start")
-    public String startOrder(@PathVariable String orderId, RedirectAttributes redirectAttributes) {
-        logger.info("Starting order: {}", orderId);
+    public String startOrder(@PathVariable String orderId, HttpSession session, RedirectAttributes redirectAttributes) {
+        String loggedInUserId = (String) session.getAttribute("userId");
+        logger.info("Starting order: {} by user: {}", orderId, loggedInUserId);
         
         try {
+            checkOrderOwnership(orderId, loggedInUserId);
             warehouseService.startOrder(orderId);
             redirectAttributes.addFlashAttribute("successMessage", 
                     "Order started successfully!");
@@ -183,10 +234,12 @@ public class OrderController {
      * Finish an order.
      */
     @PostMapping("/{orderId}/finish")
-    public String finishOrder(@PathVariable String orderId, RedirectAttributes redirectAttributes) {
-        logger.info("Finishing order: {}", orderId);
+    public String finishOrder(@PathVariable String orderId, HttpSession session, RedirectAttributes redirectAttributes) {
+        String loggedInUserId = (String) session.getAttribute("userId");
+        logger.info("Finishing order: {} by user: {}", orderId, loggedInUserId);
         
         try {
+            checkOrderOwnership(orderId, loggedInUserId);
             warehouseService.finishOrder(orderId);
             redirectAttributes.addFlashAttribute("successMessage", 
                     "Order finished successfully! Places have been freed.");
@@ -202,13 +255,13 @@ public class OrderController {
      * Show payment form for an order.
      */
     @GetMapping("/{orderId}/payment/add")
-    public String showAddPaymentForm(@PathVariable String orderId, Model model) {
-        logger.info("Showing payment form for order: {}", orderId);
+    public String showAddPaymentForm(@PathVariable String orderId, HttpSession session, Model model) {
+        String loggedInUserId = (String) session.getAttribute("userId");
+        logger.info("Showing payment form for order: {} by user: {}", orderId, loggedInUserId);
+        
+        checkOrderOwnership(orderId, loggedInUserId);
         
         OrderDTO order = warehouseService.getOrderById(orderId);
-        if (order == null) {
-            throw new RuntimeException("Order not found: " + orderId);
-        }
         
         PaymentDTO payment = new PaymentDTO();
         payment.setOrderId(orderId);
@@ -226,11 +279,16 @@ public class OrderController {
     @PostMapping("/{orderId}/payment/add")
     public String addPayment(@PathVariable String orderId,
                             @ModelAttribute PaymentDTO payment,
+                            HttpSession session,
                             RedirectAttributes redirectAttributes) {
-        logger.info("Adding payment for order: {}", orderId);
+        String loggedInUserId = (String) session.getAttribute("userId");
+        logger.info("Adding payment for order: {} by user: {}", orderId, loggedInUserId);
         
         try {
+            checkOrderOwnership(orderId, loggedInUserId);
+            
             payment.setOrderId(orderId);
+            payment.setUserId(loggedInUserId);
             PaymentDTO createdPayment = warehouseService.createPayment(payment);
             
             redirectAttributes.addFlashAttribute("successMessage", 

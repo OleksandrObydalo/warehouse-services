@@ -1,5 +1,7 @@
 package org.example.webclient.controller;
 
+import jakarta.servlet.http.HttpSession;
+import org.example.webclient.dto.OrderDTO;
 import org.example.webclient.dto.PaymentDTO;
 import org.example.webclient.service.WarehouseWebService;
 import org.slf4j.Logger;
@@ -28,10 +30,23 @@ public class PaymentController {
 
     /**
      * Display payments for a specific order.
+     * Users can only view payments for their own orders.
      */
     @GetMapping("/order/{orderId}")
-    public String showPaymentsByOrder(@PathVariable String orderId, Model model) {
-        logger.info("Fetching payments for order: {}", orderId);
+    public String showPaymentsByOrder(@PathVariable String orderId, HttpSession session, Model model) {
+        String loggedInUserId = (String) session.getAttribute("userId");
+        logger.info("Fetching payments for order: {} by user: {}", orderId, loggedInUserId);
+        
+        // ACCESS CONTROL: Check if order belongs to logged-in user
+        OrderDTO order = warehouseService.getOrderById(orderId);
+        if (order == null) {
+            throw new RuntimeException("Order not found: " + orderId);
+        }
+        if (!order.getUserId().equals(loggedInUserId)) {
+            logger.warn("User {} attempted to view payments for order {} belonging to user {}", 
+                    loggedInUserId, orderId, order.getUserId());
+            throw new RuntimeException("Access denied: You can only view payments for your own orders");
+        }
         
         List<PaymentDTO> payments = warehouseService.getPaymentsByOrderId(orderId);
         model.addAttribute("payments", payments);
