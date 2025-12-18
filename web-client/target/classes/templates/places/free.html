@@ -103,7 +103,7 @@
                                 <td>
                                     <span th:text="${place.type}" 
                                           th:class="${place.type == 'STANDARD' ? 'badge bg-primary' : 
-                                                     (place.type == 'COLD' ? 'badge bg-info' : 'badge bg-warning')}">
+                                                     (place.type == 'REFRIGERATED' ? 'badge bg-info' : 'badge bg-warning')}">
                                         STANDARD
                                     </span>
                                 </td>
@@ -137,10 +137,10 @@
                         <span class="badge bg-primary">STANDARD</span> - Regular storage
                     </div>
                     <div class="col-md-4">
-                        <span class="badge bg-info">COLD</span> - Temperature controlled
+                        <span class="badge bg-info">REFRIGERATED</span> - Temperature controlled
                     </div>
                     <div class="col-md-4">
-                        <span class="badge bg-warning text-dark">HAZARDOUS</span> - Special handling
+                        <span class="badge bg-warning text-dark">SECURE</span> - Special handling
                     </div>
                 </div>
             </div>

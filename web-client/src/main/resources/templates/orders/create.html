@@ -120,8 +120,8 @@
                                     required>
                                 <option value="">-- Select Type --</option>
                                 <option value="STANDARD">Standard Storage</option>
-                                <option value="COLD">Cold Storage</option>
-                                <option value="HAZARDOUS">Hazardous Materials</option>
+                                <option value="REFRIGERATED">Cold Storage (Refrigerated)</option>
+                                <option value="SECURE">Secure Storage</option>
                             </select>
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('desiredType')}" th:errors="*{desiredType}">
                                 Please select a place type
