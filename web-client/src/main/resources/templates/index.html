@@ -51,7 +51,7 @@
     <div th:replace="~{fragments/navbar :: navbar('home')}"></div>
 
     <!-- Success/Error Messages -->
-    <div class="container mt-3" th:if="${successMessage or errorMessage}">
+    <div class="container mt-3" th:if="${successMessage != null || errorMessage != null}">
         <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="bi bi-check-circle"></i>
             <span th:text="${successMessage}">Success message</span>
