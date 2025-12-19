@@ -17,9 +17,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Controller for managing orders.
- */
 @Controller
 @RequestMapping("/orders")
 public class OrderController {
@@ -31,9 +28,6 @@ public class OrderController {
         this.warehouseService = warehouseService;
     }
 
-    /**
-     * Helper method to check if logged-in user owns the order.
-     */
     private void checkOrderOwnership(String orderId, String loggedInUserId) {
         OrderDTO order = warehouseService.getOrderById(orderId);
         if (order == null) {
@@ -46,9 +40,6 @@ public class OrderController {
         }
     }
 
-    /**
-     * Display list of orders for the logged-in user.
-     */
     @GetMapping
     public String listOrders(HttpSession session, Model model) {
         String userId = (String) session.getAttribute("userId");
@@ -66,9 +57,6 @@ public class OrderController {
         return "orders/list";
     }
 
-    /**
-     * Show the form for creating a new order.
-     */
     @GetMapping("/create")
     public String showCreateOrderForm(HttpSession session, Model model) {
         OrderDTO order = new OrderDTO();
@@ -78,9 +66,6 @@ public class OrderController {
         return "orders/create";
     }
 
-    /**
-     * Handle order creation form submission.
-     */
     @PostMapping("/create")
     public String createOrder(@Valid @ModelAttribute("order") OrderDTO orderDTO,
                             BindingResult bindingResult,
@@ -120,13 +105,6 @@ public class OrderController {
         }
     }
 
-    /**
-     * Display order details with payment information (Complex Aggregation).
-     * This method demonstrates the required complex aggregation:
-     * 1. Fetch order details from OrderService
-     * 2. Fetch payment information from PaymentService
-     * 3. Combine and display on a single page
-     */
     @GetMapping("/{orderId}")
     public String showOrderDetails(@PathVariable String orderId, HttpSession session, Model model) {
         String loggedInUserId = (String) session.getAttribute("userId");
@@ -162,9 +140,6 @@ public class OrderController {
         return "orders/details";
     }
 
-    /**
-     * Confirm an order.
-     */
     @PostMapping("/{orderId}/confirm")
     public String confirmOrder(@PathVariable String orderId, HttpSession session, RedirectAttributes redirectAttributes) {
         String loggedInUserId = (String) session.getAttribute("userId");
@@ -188,9 +163,6 @@ public class OrderController {
         }
     }
 
-    /**
-     * Cancel an order.
-     */
     @PostMapping("/{orderId}/cancel")
     public String cancelOrder(@PathVariable String orderId, HttpSession session, RedirectAttributes redirectAttributes) {
         String loggedInUserId = (String) session.getAttribute("userId");
@@ -209,9 +181,6 @@ public class OrderController {
         }
     }
 
-    /**
-     * Start an order.
-     */
     @PostMapping("/{orderId}/start")
     public String startOrder(@PathVariable String orderId, HttpSession session, RedirectAttributes redirectAttributes) {
         String loggedInUserId = (String) session.getAttribute("userId");
@@ -230,9 +199,6 @@ public class OrderController {
         }
     }
 
-    /**
-     * Finish an order.
-     */
     @PostMapping("/{orderId}/finish")
     public String finishOrder(@PathVariable String orderId, HttpSession session, RedirectAttributes redirectAttributes) {
         String loggedInUserId = (String) session.getAttribute("userId");
@@ -251,9 +217,6 @@ public class OrderController {
         }
     }
 
-    /**
-     * Show payment form for an order.
-     */
     @GetMapping("/{orderId}/payment/add")
     public String showAddPaymentForm(@PathVariable String orderId, HttpSession session, Model model) {
         String loggedInUserId = (String) session.getAttribute("userId");
@@ -273,9 +236,6 @@ public class OrderController {
         return "orders/add-payment";
     }
 
-    /**
-     * Process payment creation.
-     */
     @PostMapping("/{orderId}/payment/add")
     public String addPayment(@PathVariable String orderId,
                             @ModelAttribute PaymentDTO payment,

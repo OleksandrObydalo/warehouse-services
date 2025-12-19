@@ -14,9 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
-/**
- * Controller for viewing payments.
- */
 @Controller
 @RequestMapping("/payments")
 public class PaymentController {
@@ -28,10 +25,6 @@ public class PaymentController {
         this.warehouseService = warehouseService;
     }
 
-    /**
-     * Display payments for a specific order.
-     * Users can only view payments for their own orders.
-     */
     @GetMapping("/order/{orderId}")
     public String showPaymentsByOrder(@PathVariable String orderId, HttpSession session, Model model) {
         String loggedInUserId = (String) session.getAttribute("userId");

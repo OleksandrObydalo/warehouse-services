@@ -6,10 +6,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Simple in-memory authentication service.
- * In production, this should connect to a user database or authentication service.
- */
 @Service
 public class AuthenticationService {
 
@@ -25,11 +21,6 @@ public class AuthenticationService {
         users.put("admin", new UserDTO("admin", "admin"));
     }
 
-    /**
-     * Authenticate user with username and password.
-     * For simplicity, password is the same as userId.
-     * In production, use proper password hashing (BCrypt, etc.)
-     */
     public UserDTO authenticate(String username, String password) {
         for (UserDTO user : users.values()) {
             if (user.getUsername().equals(username) && user.getUserId().equals(password)) {
@@ -39,16 +30,10 @@ public class AuthenticationService {
         return null;
     }
 
-    /**
-     * Get user by userId.
-     */
     public UserDTO getUserById(String userId) {
         return users.get(userId);
     }
 
-    /**
-     * Register a new user.
-     */
     public boolean registerUser(String userId, String username, String password) {
         if (users.containsKey(userId)) {
             return false; // User already exists

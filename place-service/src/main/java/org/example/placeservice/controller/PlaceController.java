@@ -36,12 +36,8 @@ public class PlaceController {
     })
     @GetMapping("/free")
     public ResponseEntity<List<PlaceDTO>> getAllFreePlaces() {
-        try {
-            List<PlaceDTO> places = placeService.getAllFreePlaces();
-            return ResponseEntity.ok(places);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        List<PlaceDTO> places = placeService.getAllFreePlaces();
+        return ResponseEntity.ok(places);
     }
 
     @Operation(summary = "Отримати вільні місця за типом",
@@ -56,12 +52,8 @@ public class PlaceController {
     public ResponseEntity<List<PlaceDTO>> getFreePlacesByType(
             @Parameter(description = "Тип місця: STANDARD, REFRIGERATED або SECURE", required = true)
             @PathVariable String type) {
-        try {
-            List<PlaceDTO> places = placeService.getFreePlacesByType(type);
-            return ResponseEntity.ok(places);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        List<PlaceDTO> places = placeService.getFreePlacesByType(type);
+        return ResponseEntity.ok(places);
     }
 
     @Operation(summary = "Отримати місця користувача",
@@ -76,12 +68,8 @@ public class PlaceController {
     public ResponseEntity<List<PlaceDTO>> getPlacesByUserId(
             @Parameter(description = "ID користувача", required = true)
             @PathVariable String userId) {
-        try {
-            List<PlaceDTO> places = placeService.getPlacesByUserId(userId);
-            return ResponseEntity.ok(places);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        List<PlaceDTO> places = placeService.getPlacesByUserId(userId);
+        return ResponseEntity.ok(places);
     }
 
     @Operation(summary = "Видати місця користувачу",
@@ -97,14 +85,8 @@ public class PlaceController {
                     required = true,
                     content = @Content(schema = @Schema(implementation = GivePlacesRequestDTO.class)))
             @RequestBody GivePlacesRequestDTO request) {
-        try {
-            placeService.givePlacesToUser(request);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        placeService.givePlacesToUser(request);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @Operation(summary = "Звільнити місця",
@@ -119,14 +101,8 @@ public class PlaceController {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Список ID місць для звільнення",
                     required = true)
             @RequestBody List<String> placeIds) {
-        try {
-            placeService.makePlacesFree(placeIds);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        placeService.makePlacesFree(placeIds);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
 

@@ -18,10 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Service class that handles all HTTP communication with the API Gateway.
- * This service acts as a client to the warehouse microservices through the gateway.
- */
 @Service
 public class WarehouseWebService {
 
@@ -39,10 +35,6 @@ public class WarehouseWebService {
 
     // ==================== PLACE SERVICE ENDPOINTS ====================
 
-    /**
-     * Get list of free (available) places from PlaceService.
-     * @return List of available places
-     */
     public List<PlaceDTO> getFreePlaces() {
         String url = gatewayUrl + "/api/places/free";
         logger.debug("Fetching free places from: {}", url);
@@ -60,11 +52,6 @@ public class WarehouseWebService {
 
     // ==================== ORDER SERVICE ENDPOINTS ====================
 
-    /**
-     * Create a new order.
-     * @param orderDTO Order data
-     * @return Created order
-     */
     public OrderDTO createOrder(OrderDTO orderDTO) {
         String url = gatewayUrl + "/api/orders";
         logger.debug("Creating order for user: {}", orderDTO.getUserId());
@@ -76,12 +63,6 @@ public class WarehouseWebService {
         return response.getBody();
     }
 
-    /**
-     * Get orders within a date range.
-     * @param startDate Start date
-     * @param endDate End date
-     * @return List of orders
-     */
     public List<OrderDTO> getOrdersByDateRange(LocalDate startDate, LocalDate endDate) {
         String url = gatewayUrl + "/api/orders/date-range?startDate={startDate}&endDate={endDate}";
         logger.debug("Fetching orders from {} to {}", startDate, endDate);
@@ -102,10 +83,6 @@ public class WarehouseWebService {
         return response.getBody();
     }
 
-    /**
-     * Get all orders (without date filtering).
-     * @return List of all orders
-     */
     public List<OrderDTO> getAllOrders() {
         // Using a very wide date range to get all orders
         LocalDate startDate = LocalDate.of(2000, 1, 1);
@@ -113,11 +90,6 @@ public class WarehouseWebService {
         return getOrdersByDateRange(startDate, endDate);
     }
 
-    /**
-     * Get a single order by ID.
-     * @param orderId Order ID
-     * @return Order details
-     */
     public OrderDTO getOrderById(String orderId) {
         String url = gatewayUrl + "/api/orders/{id}";
         logger.debug("Fetching order with ID: {}", orderId);
@@ -131,11 +103,6 @@ public class WarehouseWebService {
         return response.getBody();
     }
 
-    /**
-     * Confirm an order.
-     * @param orderId Order ID to confirm
-     * @return Confirmed order
-     */
     public OrderDTO confirmOrder(String orderId) {
         String url = gatewayUrl + "/api/orders/{id}/confirm";
         logger.debug("Confirming order with ID: {}", orderId);
@@ -155,11 +122,6 @@ public class WarehouseWebService {
         return response.getBody();
     }
 
-    /**
-     * Cancel an order.
-     * @param orderId Order ID to cancel
-     * @return Cancelled order
-     */
     public OrderDTO cancelOrder(String orderId) {
         String url = gatewayUrl + "/api/orders/{id}/cancel";
         logger.debug("Cancelling order with ID: {}", orderId);
@@ -179,11 +141,6 @@ public class WarehouseWebService {
         return response.getBody();
     }
 
-    /**
-     * Start an order.
-     * @param orderId Order ID to start
-     * @return Started order
-     */
     public OrderDTO startOrder(String orderId) {
         String url = gatewayUrl + "/api/orders/{id}/start";
         logger.debug("Starting order with ID: {}", orderId);
@@ -203,11 +160,6 @@ public class WarehouseWebService {
         return response.getBody();
     }
 
-    /**
-     * Finish an order.
-     * @param orderId Order ID to finish
-     * @return Finished order
-     */
     public OrderDTO finishOrder(String orderId) {
         String url = gatewayUrl + "/api/orders/{id}/finish";
         logger.debug("Finishing order with ID: {}", orderId);
@@ -229,12 +181,6 @@ public class WarehouseWebService {
 
     // ==================== PAYMENT SERVICE ENDPOINTS ====================
 
-    /**
-     * Get payments for a specific order.
-     * This is used for complex aggregation with order details.
-     * @param orderId Order ID
-     * @return List of payments for the order
-     */
     public List<PaymentDTO> getPaymentsByOrderId(String orderId) {
         String url = gatewayUrl + "/api/payments/order/{orderId}";
         logger.debug("Fetching payments for order: {}", orderId);
@@ -261,11 +207,6 @@ public class WarehouseWebService {
         }
     }
 
-    /**
-     * Create a payment for an order.
-     * @param paymentDTO Payment data
-     * @return Created payment
-     */
     public PaymentDTO createPayment(PaymentDTO paymentDTO) {
         String url = gatewayUrl + "/api/payments";
         logger.debug("Creating payment for order: {}", paymentDTO.getOrderId());
@@ -279,11 +220,6 @@ public class WarehouseWebService {
 
     // ==================== PLACE SERVICE ENDPOINTS ====================
 
-    /**
-     * Get places rented by a specific user.
-     * @param userId User ID
-     * @return List of places rented by the user
-     */
     public List<PlaceDTO> getPlacesByUserId(String userId) {
         String url = gatewayUrl + "/api/places/user/{userId}";
         logger.debug("Fetching places for user: {}", userId);

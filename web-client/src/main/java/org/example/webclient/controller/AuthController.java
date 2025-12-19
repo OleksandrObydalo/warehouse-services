@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- * Controller for authentication (login/logout).
- */
+
 @Controller
 public class AuthController {
 
@@ -25,9 +23,6 @@ public class AuthController {
         this.authenticationService = authenticationService;
     }
 
-    /**
-     * Show login page.
-     */
     @GetMapping("/login")
     public String showLoginPage(HttpSession session, Model model) {
         // If already logged in, redirect to home
@@ -37,9 +32,6 @@ public class AuthController {
         return "auth/login";
     }
 
-    /**
-     * Process login.
-     */
     @PostMapping("/login")
     public String login(@RequestParam String username,
                        @RequestParam String password,
@@ -67,9 +59,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * Logout.
-     */
     @GetMapping("/logout")
     public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
         String username = (String) session.getAttribute("username");

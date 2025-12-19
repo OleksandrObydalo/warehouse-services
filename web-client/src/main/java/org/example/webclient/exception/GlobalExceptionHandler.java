@@ -28,29 +28,45 @@ public class GlobalExceptionHandler {
 
         String errorMessage;
         String errorTitle;
+        String alertType;
+
+        // First, try to extract the actual error message from the response
+        String extractedMessage = extractErrorMessage(ex, null);
 
         switch (ex.getStatusCode().value()) {
             case 400:
                 errorTitle = "Invalid Request";
-                errorMessage = extractErrorMessage(ex, "The request contains invalid data. Please check your input.");
+                // Use extracted message if available, otherwise use default
+                if (extractedMessage != null) {
+                    errorMessage = extractedMessage;
+                } else {
+                    errorMessage = "The request contains invalid data. Please check your input.";
+                }
+                alertType = "warning";
                 break;
             case 404:
                 errorTitle = "Not Found";
-                errorMessage = extractErrorMessage(ex, "The requested resource was not found.");
+                errorMessage = extractedMessage != null ? extractedMessage : 
+                              "The requested resource was not found.";
+                alertType = "warning";
                 break;
             case 409:
                 errorTitle = "Conflict";
-                errorMessage = extractErrorMessage(ex, "There is a conflict with the current state. Please try again.");
+                errorMessage = extractedMessage != null ? extractedMessage : 
+                              "There is a conflict with the current state. Please try again.";
+                alertType = "warning";
                 break;
             default:
                 errorTitle = "Request Error";
-                errorMessage = extractErrorMessage(ex, "Unable to process your request. Please try again.");
+                errorMessage = extractedMessage != null ? extractedMessage : 
+                              "Unable to process your request. Please try again.";
+                alertType = "warning";
         }
 
         model.addAttribute("errorTitle", errorTitle);
         model.addAttribute("errorMessage", errorMessage);
         model.addAttribute("errorCode", ex.getStatusCode().value());
-        model.addAttribute("alertType", "warning");
+        model.addAttribute("alertType", alertType);
 
         return "error";
     }
@@ -122,23 +138,50 @@ public class GlobalExceptionHandler {
 
     /**
      * Extract a user-friendly error message from the exception response body.
-     * Falls back to a default message if extraction fails.
+     * Returns null if extraction fails and defaultMessage is null.
      */
     private String extractErrorMessage(HttpClientErrorException ex, String defaultMessage) {
         try {
             String responseBody = ex.getResponseBodyAsString();
+            logger.debug("Response body: {}", responseBody);
+            
             if (responseBody != null && !responseBody.isEmpty()) {
                 // Try to extract error message from JSON response
+                // Look for "message" field in JSON
                 if (responseBody.contains("\"message\"")) {
                     int start = responseBody.indexOf("\"message\"") + 11;
                     int end = responseBody.indexOf("\"", start);
                     if (end > start) {
-                        return responseBody.substring(start, end);
+                        String message = responseBody.substring(start, end);
+                        // Unescape JSON characters
+                        message = message.replace("\\\"", "\"")
+                                        .replace("\\n", " ")
+                                        .replace("\\r", "")
+                                        .replace("\\t", " ");
+                        logger.debug("Extracted message from JSON: {}", message);
+                        return message;
                     }
                 }
-                // If not JSON, return the raw response (but limit length)
-                if (responseBody.length() < 200) {
-                    return responseBody;
+                // Look for "error" field in JSON
+                if (responseBody.contains("\"error\"")) {
+                    int start = responseBody.indexOf("\"error\"") + 9;
+                    int end = responseBody.indexOf("\"", start);
+                    if (end > start) {
+                        String error = responseBody.substring(start, end);
+                        error = error.replace("\\\"", "\"")
+                                    .replace("\\n", " ")
+                                    .replace("\\r", "")
+                                    .replace("\\t", " ");
+                        logger.debug("Extracted error from JSON: {}", error);
+                        return error;
+                    }
+                }
+                // If plain text response (not JSON), return it directly
+                if (!responseBody.trim().startsWith("{") && !responseBody.trim().startsWith("[")) {
+                    if (responseBody.length() < 300) {
+                        logger.debug("Using plain text response: {}", responseBody);
+                        return responseBody.trim();
+                    }
                 }
             }
         } catch (Exception e) {
@@ -153,8 +196,23 @@ public class GlobalExceptionHandler {
     private String extractErrorMessage(HttpServerErrorException ex, String defaultMessage) {
         try {
             String responseBody = ex.getResponseBodyAsString();
-            if (responseBody != null && !responseBody.isEmpty() && responseBody.length() < 200) {
-                return responseBody;
+            if (responseBody != null && !responseBody.isEmpty()) {
+                // Try to extract error message from JSON response
+                if (responseBody.contains("\"message\"")) {
+                    int start = responseBody.indexOf("\"message\"") + 11;
+                    int end = responseBody.indexOf("\"", start);
+                    if (end > start) {
+                        String message = responseBody.substring(start, end);
+                        message = message.replace("\\\"", "\"")
+                                        .replace("\\n", " ")
+                                        .replace("\\r", "");
+                        return message;
+                    }
+                }
+                // If plain text and reasonable length
+                if (!responseBody.trim().startsWith("{") && responseBody.length() < 300) {
+                    return responseBody.trim();
+                }
             }
         } catch (Exception e) {
             logger.debug("Could not extract error message from response", e);

@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
-/**
- * Controller for managing warehouse places.
- */
 @Controller
 @RequestMapping("/places")
 public class PlaceController {
@@ -27,9 +24,6 @@ public class PlaceController {
         this.warehouseService = warehouseService;
     }
 
-    /**
-     * Display free (available) places.
-     */
     @GetMapping("/free")
     public String showFreePlaces(HttpSession session, Model model) {
         logger.info("Fetching free places");
@@ -41,10 +35,6 @@ public class PlaceController {
         return "places/free";
     }
 
-    /**
-     * Display places rented by a specific user.
-     * Users can only view their own places.
-     */
     @GetMapping("/user/{userId}")
     public String showUserPlaces(@PathVariable String userId, HttpSession session, Model model) {
         String loggedInUserId = (String) session.getAttribute("userId");
@@ -64,9 +54,6 @@ public class PlaceController {
         return "places/user";
     }
 
-    /**
-     * Redirect to logged-in user's places (convenience method).
-     */
     @GetMapping("/my-places")
     public String showMyPlaces(HttpSession session) {
         String userId = (String) session.getAttribute("userId");
